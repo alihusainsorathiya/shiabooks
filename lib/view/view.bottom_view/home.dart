@@ -1,7 +1,10 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:shiabooks/controller/con_category.dart';
 import 'package:shiabooks/controller/con_latest.dart';
 import 'package:shiabooks/controller/con_slider.dart';
+import 'package:shiabooks/controller/con_incoming.dart';
+import 'package:shiabooks/model/category/model_category.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
 import 'package:sizer/sizer.dart';
 
@@ -17,13 +20,21 @@ class _HomeState extends State<Home> {
   List<ModelEbook> listSlider = [];
 
   Future<List<ModelEbook>>? getLatest;
-  List<ModelEbook> listlatest = [];
+  List<ModelEbook> listLatest = [];
+
+  Future<List<ModelEbook>>? getIncoming;
+  List<ModelEbook> listIncoming = [];
+
+  Future<List<ModelCategory>>? getCategory;
+  List<ModelCategory> listCategory = [];
 
   void initState() {
     super.initState();
 
     getSlider = fetchSlider(listSlider);
-    getLatest = fetchLatest(listlatest);
+    getLatest = fetchLatest(listLatest);
+    getIncoming = fetchIncoming(listIncoming);
+    getCategory = fetchCategory(listCategory);
   }
 
   @override
@@ -39,6 +50,7 @@ class _HomeState extends State<Home> {
               if (snapshot.connectionState == ConnectionState.done)
                 return Column(
                   children: [
+                    // Slider
                     Container(
                       child: FutureBuilder(
                         future: getSlider,
@@ -115,6 +127,8 @@ class _HomeState extends State<Home> {
                         },
                       ),
                     ),
+
+                    // Latest Ebook
                     Container(
                       child: FutureBuilder(
                         future: getLatest,
@@ -164,7 +178,7 @@ class _HomeState extends State<Home> {
                                               children: [
                                                 ClipRRect(
                                                   child: Image.network(
-                                                    listlatest[index].photo,
+                                                    listLatest[index].photo,
                                                     fit: BoxFit.cover,
                                                     height: 15.h,
                                                     width: 24.w,
@@ -178,7 +192,7 @@ class _HomeState extends State<Home> {
                                                 Container(
                                                   width: 24.w,
                                                   child: Text(
-                                                    listlatest[index].title,
+                                                    listLatest[index].title,
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -201,6 +215,159 @@ class _HomeState extends State<Home> {
                         },
                       ),
                     ),
+                    // ADS
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: FutureBuilder(
+                        builder: (BuildContext context,
+                            AsyncSnapshot<List<ModelEbook>> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return snapshot.data!.length == 0
+                                ? Container()
+                                : Container(
+                                    color: Colors.blueGrey.withOpacity(0.5),
+                                    padding: EdgeInsets.only(top: 2.0.h),
+                                    child: Stack(
+                                      children: [
+                                        Center(
+                                          child: Container(
+                                            padding: EdgeInsets.all(8),
+                                            child: Container(
+                                              margin: EdgeInsets.only(top: 5.h),
+                                              child: Text(
+                                                'Coming Soon',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 30,
+                                                  letterSpacing: 10,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 24.h,
+                                          child: ListView.builder(
+                                            itemCount: snapshot.data!.length,
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return GestureDetector(
+                                                onTap: () {},
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      ClipRRect(
+                                                        child: Image.network(
+                                                          listIncoming[index]
+                                                              .photo,
+                                                          fit: BoxFit.cover,
+                                                          height: 15.h,
+                                                          width: 24.w,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 0.5.h,
+                                                      ),
+                                                      Container(
+                                                        width: 24.w,
+                                                        child: Text(
+                                                          listIncoming[index]
+                                                              .title,
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                          } else
+                            return Container();
+                        },
+                        future: getIncoming,
+                      ),
+                    ),
+                    //COMING SOON
+                    Container(
+                      child: FutureBuilder(
+                          future: getCategory,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<ModelCategory>> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done)
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Category',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 14.h,
+                                    child: ListView.builder(
+                                        itemCount: snapshot.data!.length,
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return GestureDetector(
+                                            onTap: () {},
+                                            child: Container(
+                                              padding: EdgeInsets.all(5),
+                                              child: Stack(
+                                                children: [
+                                                  ClipRRect(
+                                                    child: Image.network(
+                                                      listCategory[index]
+                                                          .photoCat,
+                                                      fit: BoxFit.cover,
+                                                      height: 15.h,
+                                                      width: 24.w,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                ],
+                              );
+                            else
+                              return Container();
+                          }),
+                    ),
+                    // CATEGORY
                   ],
                 );
               else
