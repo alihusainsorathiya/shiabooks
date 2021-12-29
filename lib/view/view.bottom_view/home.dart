@@ -40,7 +40,25 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.white70,
+        elevation: 0,
+        title: Row(
+          children: [
+            Container(
+              child: Icon(Icons.account_circle_outlined, color: Colors.black),
+            ),
+            SizedBox(
+              width: 2.w,
+            ),
+            Text(
+              'Hello',
+              style: TextStyle(color: Colors.black),
+            ),
+          ],
+        ),
+        actions: [],
+      ),
       body: Container(
         child: SingleChildScrollView(
           child: FutureBuilder(
@@ -60,6 +78,7 @@ class _HomeState extends State<Home> {
                             return SizedBox(
                               height: 27.0.h,
                               child: Swiper(
+                                autoplay: true,
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return GestureDetector(
@@ -354,6 +373,37 @@ class _HomeState extends State<Home> {
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
+                                                  ),
+                                                  ClipRRect(
+                                                    child: Container(
+                                                      color: Colors.black
+                                                          .withOpacity(0.6),
+                                                      height: 15.h,
+                                                      width: 24.w,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  Positioned(
+                                                    top: 0,
+                                                    bottom: 0,
+                                                    right: 0,
+                                                    left: 0,
+                                                    child: Center(
+                                                      child: Text(
+                                                        listCategory[index]
+                                                            .name,
+                                                        maxLines: 1,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
                                                 ],
                                               ),

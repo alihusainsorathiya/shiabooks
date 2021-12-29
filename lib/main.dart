@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shiabooks/view/view.bottom_view/bottom_view.dart';
+import 'package:shiabooks/view/view.register/ebook_register.dart';
 import 'package:sizer/sizer.dart';
 
 void main() {
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: BottomView(),
+        home: EbookRegister(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
