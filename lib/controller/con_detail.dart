@@ -6,7 +6,8 @@ Future<List<ModelEbook>> fetchDetail(List<ModelEbook> fetch, int id) async {
   print("Base_url: " +
       Apiconstant().baseurl +
       Apiconstant().api +
-      Apiconstant().detail);
+      Apiconstant().detail +
+      id.toString());
   var request = await Dio().get(Apiconstant().baseurl +
       Apiconstant().api +
       Apiconstant().detail +

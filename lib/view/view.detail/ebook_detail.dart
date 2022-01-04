@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:shiabooks/controller/con_detail.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
 import 'package:sizer/sizer.dart';
@@ -30,7 +31,7 @@ class _EbookDetailState extends State<EbookDetail> {
         backgroundColor: Colors.white70,
         elevation: 0,
         title: Text(
-          "Library",
+          "Detail",
           style: TextStyle(color: Colors.black),
         ),
         leading: GestureDetector(
@@ -243,7 +244,33 @@ class _EbookDetailState extends State<EbookDetail> {
                                             margin: EdgeInsets.only(
                                                 left: 14, right: 14),
                                           ),
-                                        )
+                                        ),
+                              SizedBox(height: 3.h),
+                              Container(
+                                padding: EdgeInsets.only(top: 3.h),
+                                margin: EdgeInsets.only(left: 14, right: 14),
+                                decoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Description",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Html(
+                                      data: '${listDetail[index].description}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 3.h),
                             ],
                           );
                         }),
