@@ -1,11 +1,18 @@
+import 'dart:convert';
+
 import 'package:card_swiper/card_swiper.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shiabooks/controller/api.dart';
 import 'package:shiabooks/controller/con_category.dart';
 import 'package:shiabooks/controller/con_latest.dart';
 import 'package:shiabooks/controller/con_slider.dart';
 import 'package:shiabooks/controller/con_incoming.dart';
 import 'package:shiabooks/model/category/model_category.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
+import 'package:shiabooks/view/view.detail/ebook_detail.dart';
+import 'package:shiabooks/view/widget/ebook_router.dart';
+import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
 
 class Home extends StatefulWidget {
@@ -28,6 +35,9 @@ class _HomeState extends State<Home> {
   Future<List<ModelCategory>>? getCategory;
   List<ModelCategory> listCategory = [];
 
+  String id = '', name = '', email = '', photo = '';
+
+  @override
   void initState() {
     super.initState();
 
@@ -35,6 +45,30 @@ class _HomeState extends State<Home> {
     getLatest = fetchLatest(listLatest);
     getIncoming = fetchIncoming(listIncoming);
     getCategory = fetchCategory(listCategory);
+    loadLogin().then((value) {
+      setState(() {
+        id = value[0];
+        name = value[1];
+        email = value[2];
+        // photo = value[3];
+        getPhotoFromDB(id);
+      });
+    });
+  }
+
+// get photo from DB
+
+  Future getPhotoFromDB(String idOfUser) async {
+    String photoFromDbUrl = Apiconstant().baseurl + Apiconstant().viewPhoto;
+    print("URL Photo from DB:" + photoFromDbUrl);
+    var req = await Dio().post(photoFromDbUrl, data: {'id': idOfUser});
+    var decode = req.data;
+
+    decode != "no_img"
+        ? setState(
+            () => photo = decode,
+          )
+        : setState(() => photo = "");
   }
 
   @override
@@ -46,13 +80,36 @@ class _HomeState extends State<Home> {
         title: Row(
           children: [
             Container(
-              child: Icon(Icons.account_circle_outlined, color: Colors.black),
+              // photo from db
+              child: photo == ''
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(100),
+                      ),
+                      child: Image.asset(
+                        'assets/images/register.png',
+                        fit: BoxFit.cover,
+                        width: 14.w,
+                        height: 7.h,
+                      ),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(100),
+                      ),
+                      child: Image.network(
+                        photo,
+                        fit: BoxFit.cover,
+                        width: 14.w,
+                        height: 7.h,
+                      ),
+                    ),
             ),
             SizedBox(
               width: 2.w,
             ),
             Text(
-              'Hello',
+              name,
               style: TextStyle(color: Colors.black),
             ),
           ],
@@ -82,7 +139,15 @@ class _HomeState extends State<Home> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return GestureDetector(
-                                    onTap: () {},
+                                    onTap: () {
+                                      pushPage(
+                                          context,
+                                          EbookDetail(
+                                            ebookId: listSlider[index].id,
+                                            status:
+                                                listSlider[index].statusNews,
+                                          ));
+                                    },
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Container(
@@ -298,19 +363,6 @@ class _HomeState extends State<Home> {
                                                       ),
                                                       SizedBox(
                                                         height: 0.5.h,
-                                                      ),
-                                                      Container(
-                                                        width: 24.w,
-                                                        child: Text(
-                                                          listIncoming[index]
-                                                              .title,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.black),
-                                                        ),
                                                       ),
                                                     ],
                                                   ),
