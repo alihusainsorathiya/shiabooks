@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:future_progress_dialog/future_progress_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shiabooks/controller/con_detail.dart';
+import 'package:shiabooks/controller/con_save_fav.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
+import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
 
 class EbookDetail extends StatefulWidget {
@@ -17,11 +21,17 @@ class EbookDetail extends StatefulWidget {
 class _EbookDetailState extends State<EbookDetail> {
   Future<List<ModelEbook>>? getDetail;
   List<ModelEbook> listDetail = [];
+  String name = '', email = '', id = '', checkFavorite = "0";
+
+  late SharedPreferences preferences;
 
   @override
   void initState() {
     super.initState();
     getDetail = fetchDetail(listDetail, widget.ebookId);
+    loadLogin().then((value) => {
+          id = value[0],
+        });
   }
 
   @override
@@ -115,9 +125,39 @@ class _EbookDetailState extends State<EbookDetail> {
                                           Row(
                                             children: [
                                               GestureDetector(
-                                                onTap: () {},
-                                                child:
-                                                    Icon(Icons.favorite_border),
+                                                onTap: () async {
+                                                  await showDialog(
+                                                    builder: (myFavorite) =>
+                                                        FutureProgressDialog(
+                                                      saveToFavourite(
+                                                          context: myFavorite,
+                                                          idCourse: widget
+                                                              .ebookId
+                                                              .toString(),
+                                                          idUser: id),
+                                                    ),
+                                                    context: context,
+                                                  ).then((value) async {
+                                                    preferences =
+                                                        await SharedPreferences
+                                                            .getInstance();
+
+                                                    dynamic fav = preferences
+                                                        .get('saveFavorite');
+                                                    setState(() {
+                                                      checkFavorite = fav;
+                                                    });
+                                                  });
+                                                },
+                                                child: (checkFavorite ==
+                                                        "already")
+                                                    ? Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red,
+                                                        size: 21.sp,
+                                                      )
+                                                    : Icon(Icons
+                                                        .favorite_border_rounded),
                                               ),
                                               SizedBox(
                                                 width: 1.3.h,
