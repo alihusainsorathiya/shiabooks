@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
+import 'package:package_info/package_info.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shiabooks/controller/api.dart';
 import 'package:shiabooks/controller/con_detail.dart';
 import 'package:shiabooks/controller/con_save_fav.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
@@ -31,7 +35,21 @@ class _EbookDetailState extends State<EbookDetail> {
     getDetail = fetchDetail(listDetail, widget.ebookId);
     loadLogin().then((value) => {
           id = value[0],
+          name = value[1],
+          email = value[2],
+          checkFavourites(id)
         });
+  }
+
+  checkFavourites(String userId) async {
+    var data = {'id_course': widget.ebookId, 'id_user': userId};
+
+    var checkFav = await Dio()
+        .post(Apiconstant().baseurl + Apiconstant().checkFavourite, data: data);
+    var response = checkFav.data;
+    setState(() {
+      checkFavorite = response;
+    });
   }
 
   @override
@@ -199,7 +217,9 @@ class _EbookDetailState extends State<EbookDetail> {
                                                     ),
                                               Spacer(),
                                               GestureDetector(
-                                                onTap: () {},
+                                                onTap: () {
+                                                  _share();
+                                                },
                                                 child: Icon(
                                                   Icons.share,
                                                   color: Colors.black,
@@ -327,5 +347,11 @@ class _EbookDetailState extends State<EbookDetail> {
             }),
       ),
     );
+  }
+
+  _share() async {
+    PackageInfo pi = await PackageInfo.fromPlatform();
+    Share.share(
+        "Reading Ebook for free on ${pi.appName} '\n Download Now :https://play.google.com/store/apps/details?id=${pi.packageName} ");
   }
 }

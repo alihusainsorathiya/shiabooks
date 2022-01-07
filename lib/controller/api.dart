@@ -9,7 +9,7 @@ class Apiconstant {
   String register = 'utils/register.php';
   String login = 'utils/login.php';
   String viewPhoto = 'utils/viewphoto.php';
-
+  String favorite = 'favorite=';
   String detail = 'pdf_by_id=';
   String saveFavourite = 'utils/save_favorite.php';
   String checkFavourite = 'utils/checkfav.php';
