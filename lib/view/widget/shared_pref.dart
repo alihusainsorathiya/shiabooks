@@ -19,7 +19,7 @@ saveLogin(
 
 Future loadLogin() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
-
+  print(preferences.getStringList('login'));
   return preferences.getStringList('login');
 }
 

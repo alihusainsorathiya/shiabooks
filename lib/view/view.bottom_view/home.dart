@@ -87,7 +87,8 @@ class _HomeState extends State<Home> {
                         Radius.circular(100),
                       ),
                       child: Image.asset(
-                        'assets/images/register.png',
+                        // 'assets/images/register.png',
+                        'assets/images/shiabooklogo.png',
                         fit: BoxFit.cover,
                         width: 14.w,
                         height: 7.h,

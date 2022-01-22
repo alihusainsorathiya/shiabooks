@@ -9,6 +9,7 @@ Future<List<ModelEbook>> fetchLatest(List<ModelEbook> fetch) async {
       Apiconstant().latest);
   var request = await Dio()
       .get(Apiconstant().baseurl + Apiconstant().api + Apiconstant().latest);
+  print(request.data);
   for (Map<String, dynamic> ebook in request.data) {
     fetch.add(ModelEbook(
       id: ebook['id'],

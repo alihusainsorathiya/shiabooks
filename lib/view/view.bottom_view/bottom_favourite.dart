@@ -24,7 +24,6 @@ class _BottomFavouriteState extends State<BottomFavourite> {
         id = value[0];
         name = value[1];
         email = value[2];
-        print(id);
         getFavorite = fetchFavorite(listFavorite, id);
       });
     });
@@ -34,7 +33,7 @@ class _BottomFavouriteState extends State<BottomFavourite> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white70,
+        backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
           'Favorite',
@@ -47,7 +46,15 @@ class _BottomFavouriteState extends State<BottomFavourite> {
               future: getFavorite,
               builder: (BuildContext context,
                   AsyncSnapshot<List<ModelEbook>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
+                print("snapshot status : " + snapshot.hasData.toString());
+                print("length:::" + snapshot.toString());
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData == true)
+
+                // if (snapshot != null) {
+                {
+                  print("Length:  " + snapshot.data!.length.toString());
+                  print("Length:  " + snapshot.hasData.toString());
                   return GridView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
