@@ -30,6 +30,22 @@ class _BottomProfileState extends State<BottomProfile> {
           'Profile',
           style: TextStyle(color: Colors.black),
         ),
+        actions: [
+          GestureDetector(
+            onTap: () {},
+            child: _file.path == ''
+                ? Center(
+                    child: Text(
+                      'Update',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18),
+                    ),
+                  )
+                : Text(""),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 24, left: 10, right: 10),
