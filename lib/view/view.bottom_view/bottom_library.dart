@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shiabooks/controller/con_latest.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
+import 'package:shiabooks/view/view.detail/ebook_detail.dart';
+import 'package:shiabooks/view/widget/ebook_router.dart';
 import 'package:sizer/sizer.dart';
 
 class BottomLibrary extends StatefulWidget {
@@ -46,7 +48,14 @@ class _BottomLibraryState extends State<BottomLibrary> {
                         crossAxisCount: 3, childAspectRatio: 5.5 / 9.0),
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
-                        onTap: () {},
+                        onTap: () => {
+                          pushPage(
+                              context,
+                              EbookDetail(
+                                  ebookId: listLatest[index].id,
+                                  status: listLatest[index].statusNews,
+                                  ebookName: listLatest[index].title))
+                        },
                         child: Container(
                           padding: EdgeInsets.all(3),
                           child: Column(

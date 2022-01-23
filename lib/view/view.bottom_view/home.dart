@@ -11,6 +11,7 @@ import 'package:shiabooks/controller/con_incoming.dart';
 import 'package:shiabooks/model/category/model_category.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
 import 'package:shiabooks/view/view.detail/ebook_detail.dart';
+import 'package:shiabooks/view/view.ebookbycategory/ebook_category.dart';
 import 'package:shiabooks/view/widget/ebook_router.dart';
 import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
@@ -140,14 +141,15 @@ class _HomeState extends State<Home> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return GestureDetector(
-                                    onTap: () {
+                                    onTap: () => {
                                       pushPage(
-                                          context,
-                                          EbookDetail(
-                                            ebookId: listSlider[index].id,
-                                            status:
-                                                listSlider[index].statusNews,
-                                          ));
+                                        context,
+                                        EbookDetail(
+                                          ebookId: listSlider[index].id,
+                                          ebookName: listSlider[index].title,
+                                          status: listSlider[index].statusNews,
+                                        ),
+                                      ),
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
@@ -238,9 +240,14 @@ class _HomeState extends State<Home> {
                                     itemCount: snapshot.data!.length + 1,
                                     itemBuilder:
                                         (BuildContext context, int index) {
+                                      print("---------------" +
+                                          (index == snapshot.data!.length)
+                                              .toString());
                                       if (index == snapshot.data!.length) {
                                         return GestureDetector(
-                                          onTap: () {},
+                                          onTap: () => {
+                                            print("clicked"),
+                                          },
                                           child: Container(
                                             width: 24.w,
                                             padding: EdgeInsets.only(top: 15.w),
@@ -256,7 +263,15 @@ class _HomeState extends State<Home> {
                                         );
                                       } else {
                                         return GestureDetector(
-                                          onTap: () {},
+                                          onTap: () => pushPage(
+                                            context,
+                                            EbookDetail(
+                                                ebookId: listLatest[index].id,
+                                                status: listLatest[index]
+                                                    .statusNews,
+                                                ebookName:
+                                                    listLatest[index].title),
+                                          ),
                                           child: Container(
                                             padding: EdgeInsets.all(6),
                                             child: Column(
@@ -301,6 +316,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     // ADS
+                    //COMING SOON
                     Container(
                       width: MediaQuery.of(context).size.width,
                       child: FutureBuilder(
@@ -342,7 +358,7 @@ class _HomeState extends State<Home> {
                                             itemBuilder: (BuildContext context,
                                                 int index) {
                                               return GestureDetector(
-                                                onTap: () {},
+                                                onTap: () => {},
                                                 child: Container(
                                                   padding: EdgeInsets.all(8),
                                                   child: Column(
@@ -381,7 +397,7 @@ class _HomeState extends State<Home> {
                         future: getIncoming,
                       ),
                     ),
-                    //COMING SOON
+                    // CATEGORY
                     Container(
                       child: FutureBuilder(
                           future: getCategory,
@@ -410,7 +426,13 @@ class _HomeState extends State<Home> {
                                         itemBuilder:
                                             (BuildContext context, int index) {
                                           return GestureDetector(
-                                            onTap: () {},
+                                            onTap: () => pushPage(
+                                                context,
+                                                EbookCategory(
+                                                    catId: listCategory[index]
+                                                        .catId,
+                                                    catName: listCategory[index]
+                                                        .name)),
                                             child: Container(
                                               padding: EdgeInsets.all(5),
                                               child: Stack(
@@ -470,7 +492,6 @@ class _HomeState extends State<Home> {
                               return Container();
                           }),
                     ),
-                    // CATEGORY
                   ],
                 );
               else

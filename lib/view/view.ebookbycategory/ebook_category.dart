@@ -1,62 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:shiabooks/controller/con_favorite.dart';
+import 'package:shiabooks/controller/con_categorydetail.dart';
+import 'package:shiabooks/controller/con_latest.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
 import 'package:shiabooks/view/view.detail/ebook_detail.dart';
 import 'package:shiabooks/view/widget/ebook_router.dart';
-import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
 
-class BottomFavourite extends StatefulWidget {
-  const BottomFavourite({Key? key}) : super(key: key);
+class EbookCategory extends StatefulWidget {
+  int catId;
+  String catName;
+  EbookCategory({required this.catId, required this.catName});
 
   @override
-  _BottomFavouriteState createState() => _BottomFavouriteState();
+  _EbookCategoryState createState() => _EbookCategoryState();
 }
 
-class _BottomFavouriteState extends State<BottomFavourite> {
-  Future<List<ModelEbook>>? getFavorite;
-  List<ModelEbook> listFavorite = [];
-  String id = '', name = '', email = '', photo = '';
+class _EbookCategoryState extends State<EbookCategory> {
+  Future<List<ModelEbook>>? getLatest;
+  List<ModelEbook> listEbookByCategory = [];
 
   @override
   void initState() {
     super.initState();
-    loadLogin().then((value) {
-      setState(() {
-        id = value[0];
-        name = value[1];
-        email = value[2];
-        getFavorite = fetchFavorite(listFavorite, id);
-      });
-    });
+    getLatest = fetchEbookByCategory(listEbookByCategory, widget.catId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white70,
         elevation: 0,
         title: Text(
-          'Favorite',
+          widget.catName,
           style: TextStyle(color: Colors.black),
         ),
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
+      body: Container(
+        child: SingleChildScrollView(
           child: FutureBuilder(
-              future: getFavorite,
+              future: getLatest,
               builder: (BuildContext context,
                   AsyncSnapshot<List<ModelEbook>> snapshot) {
-                print("snapshot status : " + snapshot.hasData.toString());
-                print("length:::" + snapshot.toString());
-                if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.hasData == true)
-
-                // if (snapshot != null) {
-                {
-                  print("Length:  " + snapshot.data!.length.toString());
-                  print("Length:  " + snapshot.hasData.toString());
+                if (snapshot.connectionState == ConnectionState.done) {
                   return GridView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
@@ -66,12 +59,13 @@ class _BottomFavouriteState extends State<BottomFavourite> {
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                         onTap: () => pushPage(
-                          context,
-                          EbookDetail(
-                              ebookId: listFavorite[index].id,
-                              ebookName: listFavorite[index].title,
-                              status: listFavorite[index].statusNews),
-                        ),
+                            context,
+                            EbookDetail(
+                              ebookId: listEbookByCategory[index].id,
+                              status: listEbookByCategory[index].statusNews,
+                              ebookName:
+                                  listEbookByCategory[index].title.toString(),
+                            )),
                         child: Container(
                           padding: EdgeInsets.all(3),
                           child: Column(
@@ -79,7 +73,7 @@ class _BottomFavouriteState extends State<BottomFavourite> {
                             children: [
                               ClipRRect(
                                 child: Image.network(
-                                  listFavorite[index].photo,
+                                  listEbookByCategory[index].photo,
                                   fit: BoxFit.cover,
                                   height: 15.h,
                                   width: 24.w,
@@ -93,7 +87,7 @@ class _BottomFavouriteState extends State<BottomFavourite> {
                               Container(
                                 width: 24.w,
                                 child: Text(
-                                  listFavorite[index].title,
+                                  listEbookByCategory[index].title,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(color: Colors.black),

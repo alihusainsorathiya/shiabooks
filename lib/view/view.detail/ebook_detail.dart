@@ -15,8 +15,10 @@ import 'package:sizer/sizer.dart';
 class EbookDetail extends StatefulWidget {
   int ebookId;
   int status;
+  String ebookName;
 
-  EbookDetail({required this.ebookId, required this.status});
+  EbookDetail(
+      {required this.ebookId, required this.status, required this.ebookName});
 
   @override
   _EbookDetailState createState() => _EbookDetailState();
@@ -59,8 +61,8 @@ class _EbookDetailState extends State<EbookDetail> {
         backgroundColor: Colors.white70,
         elevation: 0,
         title: Text(
-          "Detail",
-          style: TextStyle(color: Colors.black),
+          widget.ebookName.toString(),
+          style: TextStyle(color: Colors.black, fontSize: 17),
         ),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),

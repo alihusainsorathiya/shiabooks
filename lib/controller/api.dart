@@ -21,4 +21,5 @@ class Apiconstant {
   String saveFavourite = 'utils/save_favorite.php';
   String checkFavourite = 'utils/checkfav.php';
   String updatePhoto = 'utils/updatephoto.php';
+  String ebookByCategory = 'pdf_by_cat=';
 }
