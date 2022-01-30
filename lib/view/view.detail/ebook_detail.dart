@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
+import 'package:marquee/marquee.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,9 +61,16 @@ class _EbookDetailState extends State<EbookDetail> {
       appBar: AppBar(
         backgroundColor: Colors.white70,
         elevation: 0,
-        title: Text(
-          widget.ebookName.toString(),
-          style: TextStyle(color: Colors.black, fontSize: 17),
+        title: Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: 10.h,
+            child: Marquee(
+              text: widget.ebookName.toString() + ".",
+              blankSpace: 50.0,
+              style: TextStyle(color: Colors.black, fontSize: 17),
+            ),
+          ),
         ),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),

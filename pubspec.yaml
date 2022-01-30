@@ -41,6 +41,7 @@ dependencies:
   future_progress_dialog: ^0.2.0
   share: ^2.0.4
   package_info: ^2.0.2
+  marquee: ^2.2.0
 
 dev_dependencies:
   flutter_test:
