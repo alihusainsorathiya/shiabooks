@@ -19,6 +19,7 @@ class Apiconstant {
   String favorite = 'favorite=';
   String detail = 'pdf_by_id=';
   String saveFavourite = 'utils/save_favorite.php';
+  String ads = 'ads';
   String checkFavourite = 'utils/checkfav.php';
   String updatePhoto = 'utils/updatephoto.php';
   String ebookByCategory = 'pdf_by_cat=';

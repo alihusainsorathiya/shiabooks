@@ -2,16 +2,24 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:marquee/marquee.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shiabooks/controller/ads/admob.dart';
+import 'package:shiabooks/controller/ads/con_ads.dart';
+import 'package:shiabooks/controller/ads/startapp.dart';
+import 'package:shiabooks/controller/ads/unity.dart';
 import 'package:shiabooks/controller/api.dart';
 import 'package:shiabooks/controller/con_detail.dart';
 import 'package:shiabooks/controller/con_save_fav.dart';
 import 'package:shiabooks/model/model.ebook/model_ebook.dart';
 import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
+import 'package:startapp_sdk_flutter/startapp_sdk_flutter.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
+import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
 class EbookDetail extends StatefulWidget {
   int ebookId;
@@ -32,10 +40,67 @@ class _EbookDetailState extends State<EbookDetail> {
 
   late SharedPreferences preferences;
 
+  RewardedAd? _rewardedAd;
+
+  // AD Variable
+  late BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
+  //ADMOB
+  String adMobReward = '', admobBanner = '', adsMode = '';
+
+  //STARTAPP
+  String startAppLiveMode = '',
+      androidAppId = '',
+      iosAppId = '',
+      appAccountId = '';
+
+  //UNITY
+  String androidGameId = "",
+      iosGameId = "",
+      androidBanner = '',
+      androidInterstitial = "",
+      androidReward = "",
+      unityLiveMode = '0';
+
   @override
   void initState() {
     super.initState();
     getDetail = fetchDetail(listDetail, widget.ebookId);
+    fetchAds().then((value) => setState(() {
+          adsMode = value[0].ads;
+          startAppLiveMode = value[0].startapplivemode;
+          appAccountId = value[0].startappaccountid;
+          androidAppId = value[0].androidappid;
+          iosAppId = value[0].iosappid;
+          androidReward = value[0].admobreward;
+          androidBanner = value[0].unitybanner;
+          adMobReward = value[0].banner;
+          androidGameId = value[0].unitygameid;
+          unityLiveMode = value[0].unitylivemode;
+          admobBanner = value[0].banner;
+          // value[0].admobreward;
+          // value[0].unitylivemode;
+          // value[0].unitygameid;
+          // value[0].unityinterstitial;
+          // value[0].unityreward;
+          initApp(androidAppId, iosAppId, appAccountId);
+          _bannerAd = BannerAd(
+              adUnitId:
+                  AdMobManager().bannerAdsUnitId(admobBanner, admobBanner),
+              listener: BannerAdListener(onAdLoaded: (_) {
+                setState(() {
+                  _isBannerAdReady = true;
+                });
+              }, onAdFailedToLoad: (ad, error) {
+                print('Ad Error $ad --- \n $error');
+                _isBannerAdReady = false;
+                ad.dispose();
+              }),
+              size: AdSize.banner,
+              request: AdRequest());
+
+          _bannerAd.load();
+        }));
     loadLogin().then((value) => {
           id = value[0],
           name = value[1],
@@ -266,7 +331,40 @@ class _EbookDetailState extends State<EbookDetail> {
                                     )
                                   : widget.status == 1
                                       ? GestureDetector(
-                                          onTap: () {},
+                                          onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => PDF(
+                                                enableSwipe: true,
+                                                swipeHorizontal: true,
+                                                fitPolicy: FitPolicy.WIDTH,
+                                              ).cachedFromUrl(
+                                                '${listDetail[index].pdf}',
+                                                placeholder: (progress) =>
+                                                    // Center(child: Text('$progress %')
+                                                    MaterialApp(
+                                                  home: Scaffold(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    body: Center(
+                                                      child: Text(
+                                                        '$progress %',
+                                                        style: TextStyle(
+                                                            fontSize: 22.0,
+                                                            color: Colors
+                                                                .blue.shade500),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                errorWidget: (error) => Center(
+                                                  child: Text(
+                                                    error.toString(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: Colors.blue,
@@ -363,5 +461,87 @@ class _EbookDetailState extends State<EbookDetail> {
     PackageInfo pi = await PackageInfo.fromPlatform();
     Share.share(
         "Reading Ebook for free on ${pi.appName} '\n Download Now :https://play.google.com/store/apps/details?id=${pi.packageName} ");
+  }
+
+  void _loadRewardAdsAdMob(String admobInterstitial) {
+    RewardedAd.load(
+        adUnitId: AdMobManager()
+            .rewardslAdsUnitId(admobInterstitial, admobInterstitial),
+        request: AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            this._rewardedAd = ad;
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (ad) =>
+                  _loadRewardAdsAdMob(admobInterstitial),
+            );
+          },
+          onAdFailedToLoad: (error) => print("error is : $error"),
+        ));
+  }
+
+  void _loadRewardAdsUnity(
+      int index, String androidReward, BuildContext context) {
+    UnityAds.showVideoAd(
+      placementId: UnityManager().rewardAdsPlacementId(androidReward),
+      onStart: (placementId) => print('Video Ad $placementId started'),
+      onClick: (placementId) => print('Video Ad $placementId click'),
+      onSkipped: (placementId) => showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text(
+            "'Video Ad $placementId skipped'",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black),
+          ),
+          content: Text(
+            "If you will skip this Advertisement, You will not be able to view the Premium PDF.'",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.black),
+                ))
+          ],
+        ),
+      ),
+      onComplete: (placementId) => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDF(
+            enableSwipe: true,
+            swipeHorizontal: true,
+            fitPolicy: FitPolicy.WIDTH,
+          ).cachedFromUrl(
+            '${listDetail[index].pdf}',
+            placeholder: (progress) =>
+                // Center(child: Text('$progress %')
+                MaterialApp(
+              home: Scaffold(
+                backgroundColor: Colors.white,
+                body: Center(
+                  child: Text(
+                    '$progress %',
+                    style:
+                        TextStyle(fontSize: 22.0, color: Colors.blue.shade500),
+                  ),
+                ),
+              ),
+            ),
+            errorWidget: (error) => Center(
+              child: Text(
+                error.toString(),
+              ),
+            ),
+          ),
+        ),
+      ),
+      onFailed: (placementId, error, message) =>
+          print('Video Ad $placementId failed: $error $message'),
+    );
   }
 }

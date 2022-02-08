@@ -3,6 +3,11 @@ import 'dart:convert';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shiabooks/controller/ads/admob.dart';
+import 'package:shiabooks/controller/ads/con_ads.dart';
+import 'package:shiabooks/controller/ads/startapp.dart';
+import 'package:shiabooks/controller/ads/unity.dart';
 import 'package:shiabooks/controller/api.dart';
 import 'package:shiabooks/controller/con_category.dart';
 import 'package:shiabooks/controller/con_latest.dart';
@@ -15,6 +20,8 @@ import 'package:shiabooks/view/view.ebookbycategory/ebook_category.dart';
 import 'package:shiabooks/view/widget/ebook_router.dart';
 import 'package:shiabooks/view/widget/shared_pref.dart';
 import 'package:sizer/sizer.dart';
+import 'package:startapp_sdk_flutter/startapp_sdk_flutter.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -38,14 +45,61 @@ class _HomeState extends State<Home> {
 
   String id = '', name = '', email = '', photo = '';
 
+  // AD Variable
+  late BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
+  //ADMOB
+  String adMobBanner = '', admobInterstitial = '', adsMode = '';
+
+  //STARTAPP
+  String startAppLiveMode = '',
+      androidAppId = '',
+      iosAppId = '',
+      appAccountId = '';
+
+  //UNITY
+  String androidBanner = "";
+
   @override
   void initState() {
     super.initState();
-
+    _initGoogleAdMob();
     getSlider = fetchSlider(listSlider);
     getLatest = fetchLatest(listLatest);
     getIncoming = fetchIncoming(listIncoming);
     getCategory = fetchCategory(listCategory);
+    fetchAds().then((value) => setState(() {
+          adsMode = value[0].ads;
+          startAppLiveMode = value[0].startapplivemode;
+          appAccountId = value[0].startappaccountid;
+          androidAppId = value[0].androidappid;
+          iosAppId = value[0].iosappid;
+          admobInterstitial = value[0].interstitial;
+          androidBanner = value[0].unitybanner;
+          adMobBanner = value[0].banner;
+          // value[0].admobreward;
+          // value[0].unitylivemode;
+          // value[0].unitygameid;
+          // value[0].unityinterstitial;
+          // value[0].unityreward;
+          initApp(androidAppId, iosAppId, appAccountId);
+          _bannerAd = BannerAd(
+              adUnitId:
+                  AdMobManager().bannerAdsUnitId(adMobBanner, adMobBanner),
+              listener: BannerAdListener(onAdLoaded: (_) {
+                setState(() {
+                  _isBannerAdReady = true;
+                });
+              }, onAdFailedToLoad: (ad, error) {
+                print('Ad Error $ad --- \n $error');
+                _isBannerAdReady = false;
+                ad.dispose();
+              }),
+              size: AdSize.banner,
+              request: AdRequest());
+
+          _bannerAd.load();
+        }));
     loadLogin().then((value) {
       setState(() {
         id = value[0];
@@ -57,8 +111,17 @@ class _HomeState extends State<Home> {
     });
   }
 
-// get photo from DB
+  Future<InitializationStatus> _initGoogleAdMob() {
+    return MobileAds.instance.initialize();
+  }
 
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
+  }
+
+// get photo from DB
   Future getPhotoFromDB(String idOfUser) async {
     String photoFromDbUrl = Apiconstant().baseurl + Apiconstant().viewPhoto;
     print("URL Photo from DB:" + photoFromDbUrl);
@@ -316,6 +379,36 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     // ADS
+                    adsMode == 0
+                        ? StartappBanner(
+                            listener: handleAds,
+                            adSize: StartappBannerSize.BANNER,
+                          )
+                        : adsMode == "1"
+                            ? _isBannerAdReady
+                                ? Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Container(
+                                      width: _bannerAd.size.width.toDouble(),
+                                      height: _bannerAd.size.height.toDouble(),
+                                      child: AdWidget(
+                                        ad: _bannerAd,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    child: Text("Still Loading"),
+                                  )
+                            : adsMode == "2"
+                                ? UnityBannerAd(
+                                    placementId: UnityManager()
+                                        .gameId(androidBanner, androidBanner),
+                                    onFailed: (placementId, error,
+                                            errorMessage) =>
+                                        print(
+                                            "Unity Ads Error $placementId ---- $error ------ $errorMessage"),
+                                  )
+                                : Container(),
                     //COMING SOON
                     Container(
                       width: MediaQuery.of(context).size.width,

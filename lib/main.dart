@@ -1,7 +1,6 @@
+//@dart=2.9
 import 'package:flutter/material.dart';
-import 'package:shiabooks/view/view.bottom_view/bottom_view.dart';
 import 'package:shiabooks/view/view.login/ebook_login.dart';
-import 'package:shiabooks/view/view.register/ebook_register.dart';
 import 'package:sizer/sizer.dart';
 
 void main() {
